@@ -27,6 +27,8 @@ const corsOptions = {
     const allowedOrigins = [
       "https://file-app-frontend.amiigo.in",
       "http://localhost:5173",
+      "http://localhost:5174",
+      "http://94.250.203.249:5174",
       "https://idc.loopnow.in"
     ];
     
