@@ -187,21 +187,50 @@ export const getFileData = async (req, res) => {
 
 export const deleteAllUsers = async (req, res) => {
   try {
-    const { event } = req.params
-    if(!event){
-       return res.status(400).json({
-      success: false,
-      message: "Event id is required",
-    });
+    const { event } = req.params;
+    
+    // Validate event ID
+    if (!event || typeof event !== 'string' || event.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: "Valid event ID is required",
+      });
     }
-    const result = await UserCollection.deleteMany({event:event});
 
+    const eventId = event.trim();
+    
+    // Get count before deletion for verification
+    const countBefore = await UserCollection.countDocuments({ event: eventId });
+    
+    if (countBefore === 0) {
+      return res.status(200).json({
+        success: true,
+        message: `No users found for event ${eventId}`,
+        deletedCount: 0
+      });
+    }
+
+    // Use the safe method to delete users
+    const result = await UserCollection.deleteMany({ event: eventId });
+    
+    // Verify the deletion
+    const countAfter = await UserCollection.countDocuments({ event: eventId });
+    
+    if (countAfter > 0) {
+      console.error(`Failed to delete all users for event ${eventId}. ${countAfter} records remain.`);
+      return res.status(500).json({
+        success: false,
+        message: `Failed to delete all users. ${countAfter} records remain.`,
+        deletedCount: countBefore - countAfter
+      });
+    }
+
+    // If we get here, deletion was successful
     return res.status(200).json({
       success: true,
-      message: "All users deleted successfully",
-      deletedCount: result.deletedCount,
+      message: `Successfully deleted ${countBefore} users for event ${eventId}`,
+      deletedCount: countBefore
     });
-
   } catch (error) {
     console.error("Error deleting all users:", error);
     return res.status(500).json({
