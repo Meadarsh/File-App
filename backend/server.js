@@ -25,7 +25,7 @@ const PORT = process.env.PORT || 8493;
 const corsOptions = {
   origin: function (origin, callback) {
     const allowedOrigins = [
-      "https://file-app-3.onrender.com",
+      "https://meeting-app-beta-seven.vercel.app",
       "http://localhost:5173",
       "http://localhost:5174",
       "http://94.250.203.249:5174",
